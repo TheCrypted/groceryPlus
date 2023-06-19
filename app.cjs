@@ -1,22 +1,13 @@
 const express = require('express')
 const cors = require('cors')
-const scheduler = require('node-cron')
-const {transporter, options} = require("./services/email.cjs");
-const routes = require("./routes/trackingRoute.cjs")
 const {urlencoded} = require("express");
+const routes = require("./routes/trackingRoute.cjs")
 const app = express();
-const PORT = 3040;
+const PORT = 3030;
 
 
 // scheduler.schedule("* * * * *", ()=>{
     console.log("sending email")
-    transporter.sendMail(options, (err, info) => {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(`Email sent with info ${info}`);
-        }
-    })
 
 
 // })
@@ -24,7 +15,7 @@ const PORT = 3040;
 app.use(cors());
 app.use(express.json());
 app.use(urlencoded({extended: true}));
-app.use("/tracking-pixel", routes)
+app.use("/api/v1", routes)
 
 app.listen(PORT, ()=>{
     console.log(`App is running at ${PORT}`)

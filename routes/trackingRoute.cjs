@@ -1,16 +1,19 @@
 const express = require('express')
-const fs = require("fs");
+const indeedPullFunc = require("../utils/indeedPull.cjs");
 const router = express.Router();
 
-router.get('/', function(req, res){
-    const transparentGif = Buffer.from(
-        'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-        'base64'
-    );
+router.post('/indeed', async function(req, res){
+    try {
+        let { skill, location } = req.body
+        let scrape = await indeedPullFunc(skill, location);
+        return res.status(200).send(JSON.stringify( {
+            status: 'success',
+            list: scrape.list
+        }))
+    } catch (e) {
+        console.log(e)
+    }
 
-    res.set('Content-Type', 'image/gif');
-    res.send(transparentGif);
-    console.log("email has been read")
 })
 
 
