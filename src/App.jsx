@@ -19,7 +19,7 @@ function App() {
                 let list = await response.json()
                 console.log(list)
                 for(let item of list.list) {
-                    console.log(item.title)
+                    console.log(item.title, item.salary, item.href)
                 }
             }
             }>Test API</button>

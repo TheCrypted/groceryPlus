@@ -1,11 +1,11 @@
 const puppeteer = require("puppeteer");
 
-const data = {
+let data = {
     list : []
 }
 
 
-async function indeedPullFunc(skill, location){
+async function indeedPullFunc(skill, location) {
     const browser = await puppeteer.launch({headless: "new"})
     const page = await browser.newPage();
     await page.goto(`https://ae.indeed.com/jobs?q=${skill}&l=${location}&vjk=3787a18c0292a40b`, {
@@ -15,23 +15,18 @@ async function indeedPullFunc(skill, location){
     let origLink = `https://ae.indeed.com/jobs?q=${skill}&l=${location}&vjk=3787a18c0292a40b`
     let hasNextPage = true;
     let i = 0
-    while (hasNextPage && i < 10){
+    while (hasNextPage && i < 10) {
         await page.goto(origLink, {
             timeout: 0,
             waitUntil: "networkidle0"
         })
-        const jobData = await page.evaluate(async (data) => {
-            for (const pageRef of pages) {
-                await page.goto(pageRef.href, {
-                    timeout: 0,
-                    waitUntil: "networkidle0"
-                })
+        data = await page.evaluate(async (data) => {
                 let jobsInit = document.getElementsByClassName("resultContent")
                 let jobs = Array.from(jobsInit)
-                jobs.forEach((job, index)=>{
+                jobs.forEach((job, index) => {
                     let title = job.querySelector("h2.jobTitle > a > span") && job.querySelector("h2.jobTitle > a > span").innerText;
                     let href = job.querySelector("h2.jobTitle > a") && job.querySelector("h2.jobTitle > a").href;
-                    let salary = job.querySelector("div.metadata.attribute_snippet") && job.querySelector("div.metadata.attribute_snippet").innerText
+                    let salary = job.querySelector("[data-testid=\"attribute_snippet_testid\"]") && job.querySelector("[data-testid=\"attribute_snippet_testid\"]").innerText
                     if (!salary) {
                         salary = "Not given"
                     }
@@ -41,19 +36,21 @@ async function indeedPullFunc(skill, location){
                         href: href
                     })
                 })
-            }
             return data
         }, data)
 
-        const newLink = await page.evaluate(async()=>{
-            let pagesInit = document.querySelector("#jobsearch-JapanPage > div > div > div.jobsearch-SerpMainContent > div.jobsearch-LeftPane > nav > div:nth-child(7) > a")
-            return pagesInit?.href ?? null;
+        origLink = await page.evaluate(async () => {
+            let pagesInit = document.querySelector('[data-testid="pagination-page-next"]')
+            return pagesInit.href;
         })
-        if(!newLink){
+        console.log(origLink)
+        if (!origLink) {
+            console.log(origLink)
             hasNextPage = false
         }
         i++
     }
+
     // const jobData = await page.evaluate(async (data) => {
     //     let pagesInit = document.getElementsByClassName("e8ju0x50")
     //     let pages = Array.from(pagesInit).slice(1,-1)
@@ -82,9 +79,10 @@ async function indeedPullFunc(skill, location){
     //     return data
     // }, data)
 
-    console.log(`Successfully collected ${jobData.list.length} opportunities`)
+    console.log(`Successfully collected ${data.list.length} opportunities`)
     await browser.close();
-    return jobData
-}
+    return data
+    }
+
 
 module.exports = indeedPullFunc;
