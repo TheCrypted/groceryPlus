@@ -7,7 +7,7 @@ const PORT = 3030;
 
 
 // scheduler.schedule("* * * * *", ()=>{
-    console.log("sending email")
+
 
 
 // })
