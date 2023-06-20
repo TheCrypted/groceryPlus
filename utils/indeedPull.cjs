@@ -26,7 +26,7 @@ async function indeedPullFunc(skill, location) {
                 jobs.forEach((job, index) => {
                     let title = job.querySelector("h2.jobTitle > a > span") && job.querySelector("h2.jobTitle > a > span").innerText;
                     let href = job.querySelector("h2.jobTitle > a") && job.querySelector("h2.jobTitle > a").href;
-                    let salary = job.querySelector("[data-testid=\"attribute_snippet_testid\"]") && job.querySelector("[data-testid=\"attribute_snippet_testid\"]").innerText
+                    let salary = job.querySelector(".salary-snippet-container > div") && job.querySelector(".salary-snippet-container > div").innerText
                     if (!salary) {
                         salary = "Not given"
                     }
