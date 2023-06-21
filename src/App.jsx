@@ -36,14 +36,32 @@ function App() {
                 <button type="submit" className=" h-full col-span-1 text-white text-2xl font-semibold ">Search</button>
                 </form>
                 </div>
-            <div className="h-[91%] w-full bg-gray-950 scrollbar overflow-auto flex flex-wrap p-4 gap-4">
+            <div className="h-[91%] w-full bg-gray-950 scrollbar overflow-y-auto overflow-x-hidden flex flex-wrap p-4 gap-4">
 
                 {
                     items.map((item, i) => {
+                        let r = /[\d|,|.|\+]+/g;
+                        let pReg = /[Pp]/g
+                        let kReg = /[Kk]/g
+                        let lastWord = item.title.split(" ")
+                        let lastWordA = lastWord[lastWord.length - 1]
+                        let packet = lastWordA.match(pReg) === null
+                        let kilos = lastWordA.match(kReg) !== null
+                        let weight = item.title.match(r)
+                        weight = kilos ? parseInt(item.title.match(r)) * 1000 : parseInt(item.title.match(r))
+                        let price = parseInt(item.cost.split("D")[1].slice(1))/weight
+                        console.log(weight)
+                        let redComp = Math.min(price * 2500, 250)
+                        let backgroundCol = packet ? `rgba(${redComp},40,${255-redComp}, 1)` : "rgba(100, 100, 100)";
+                        // console.log(item.cost.split("D")[1].slice(1))
                         return (
                             <div key={i} className="w-[19.2%] bg-gray-800 shadow-xl h-1/2 bg-white rounded-xl hover:bg-gray-700 hover:cursor-pointer grid grid-rows-[70%_30%]">
-                                <div className="rounded-t-xl bg-slate-800 text-white flex font-semibold text-white text-3xl p-5">{item.title}</div>
-                                <div  className="bg-red-500 rounded-b-xl text-white flex justify-center items-center p-4 text-2xl font-bold">{item.cost}</div>
+                                <img className="rounded-t-xl w-full h-full" src={item.href} alt={item.title}/>
+                                <div  className="grid grid-cols-[70%_30%] bg-red-500 rounded-b-xl text-white flex justify-center items-center text-2xl font-bold">
+                                    <div className="rounded-bl-xl h-full w-full bg-slate-800 text-white flex justify-center items-center pl-4 font-semibold text-white text-2xl">{item.title}</div>
+                                    <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex justify-center items-center pl-4 font-bold text-white text-2xl">{item.cost.split("D")[1].slice(1)}</div>
+
+                                </div>
                             </div>
                         )
                     })
