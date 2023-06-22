@@ -68,7 +68,7 @@ async function westZonePullFunc(skill, location) {
         items.forEach((item, index) => {
             let weight = item.querySelector(".css-149zse0").innerText
             let title = weight ? item.querySelector("[data-testid=\"product_name\"]").innerText + " " + weight.split(" ")[0] : item.querySelector("[data-testid=\"product_name\"]").innerText;
-            let price = item.querySelector(".css-14zpref").innerText + item.querySelector(".css-1pjcwg4").innerHTML
+            let price = "AED " + item.querySelector(".css-14zpref").innerText + item.querySelector(".css-1pjcwg4").innerHTML
             let href = item.querySelector("[data-testid=\"product_image_main\"]").src;
             let hasDiscount = item.querySelector("[data-testid=\"product-card-discount-price\"]") !== null;
             console.log("created entry")

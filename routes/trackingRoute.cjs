@@ -2,6 +2,8 @@ const express = require('express')
 const westZonePullFunc = require("../utils/westZonePull.cjs");
 const carrPullFunc = require("../utils/carrPull.cjs");
 const router = express.Router();
+const itemsDB = require("../config/db.cjs");
+const Item = require("../models/storeItemModel.cjs")
 
 router.post('/indeed', async function(req, res){
     try {

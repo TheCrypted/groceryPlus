@@ -43,31 +43,31 @@ function App() {
                         let backgroundCol;
                         let colourMain;
                         if (item.store === "W") {
-                            let r = /[\d|,|.|\+]+/g;
+                            colourMain = "rgba(80, 40, 40, 1)"
+                            } else if (item.store === "C") {
+                            colourMain = "rgba(40, 40, 100, 1)"
+                        }
+                        let rReg = /[\d|,|.|\+]+/g;
+                        let weightFind = parseInt(item.title.match(rReg))
+                        if(weightFind){
                             let pReg = /[Pp]/g
                             let kReg = /[Kk]/g
                             let lastWord = item.title.split(" ")
                             let lastWordA = lastWord[lastWord.length - 1]
                             let packet = lastWordA.match(pReg) === null
                             let kilos = lastWordA.match(kReg) !== null
-                            let weight
-                            weight = kilos ? parseInt(item.title.match(r)) * 1000 : parseInt(item.title.match(r))
+                            let weight = kilos ? weightFind * 1000 : weightFind
                             let price = parseInt(item.cost.split("D")[1].slice(1))/weight
-                            // console.log(weight)
                             let redComp = Math.min(price * 2500, 250)
                             backgroundCol = packet ? `rgba(${redComp},40,${255-redComp}, 1)` : "rgba(100, 100, 100)";
-                            colourMain = "rgba(80, 40, 40, 1)"
-                            console.log(item.cost.split("D")[1].slice(1))
-                            } else if (item.store === "C") {
-                            colourMain = "rgba(40, 40, 100, 1)"
                         }
                         return (
                             <div key={i} className="w-[19.2%] bg-gray-800 shadow-xl h-1/2 bg-white rounded-xl hover:bg-gray-700 hover:cursor-pointer grid grid-rows-[70%_30%]">
                                 <img className="rounded-t-xl w-full h-full" src={item.href} alt={item.title}/>
                                 <div   className="grid grid-cols-[70%_30%] bg-red-500 rounded-b-xl text-white flex justify-center items-center text-2xl font-bold">
                                     <div style={{backgroundColor: colourMain}} className="rounded-bl-xl h-full w-full  text-white flex justify-center items-center pl-4 font-semibold text-white text-2xl">{item.title}</div>
-                                    { item.store === "W" && <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost.split("D")[1].slice(1)}</p></div>}
-                                    { item.store === "C" && <div style={{backgroundColor: "red"}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost}</p></div> }
+                                    { <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost.split("D")[1].slice(1)}</p></div>}
+                                    {/*{ item.store === "C" && <div style={{backgroundColor: "red"}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost}</p></div> }*/}
 
                                 </div>
                             </div>
