@@ -1,5 +1,7 @@
 const puppeteer = require("puppeteer");
 const carrPullFunc = require("./carrPull.cjs");
+const itemsDB = require("../config/db.cjs");
+const Item = require("../models/storeItemModel.cjs")
 
 let data = {
     list : [],
@@ -31,21 +33,33 @@ async function westZonePullFunc(skill, location) {
     data = await page.evaluate(async (data) => {
         let itemsInit = document.getElementsByClassName("product__list--item")
         let items = Array.from(itemsInit)
-        items.forEach((item, index) => {
+        for (const item of items) {
+            const index = items.indexOf(item);
             let imageHold = item.querySelector(".product-img")
             let hasDiscount = imageHold.querySelector(".discount-tag") !== null;
             let title = item.querySelector(".product-desc > h3") && item.querySelector(".product-desc > h3").innerHTML;
             let href = item.querySelector("img") && item.querySelector("img").src;
             let costItems = item.querySelectorAll(".product-price > span")
             let price = costItems[costItems.length-1].innerText
-            data.list.push({
+            let rReg = /[\d|,|.|\+]+/g;
+            let weightFind = parseInt(title.match(rReg)[0]);
+            let lastWord = item.title.split(" ")
+            let pReg = /[Pp]/g
+            let kReg = /[Kk]/g
+            let lastWordA = lastWord[lastWord.length - 1]
+            let packet = lastWordA.match(pReg) === null
+            let kilos = lastWordA.match(kReg) !== null
+            let weight = kilos ? weightFind * 1000 : weightFind
+            let itemEntry = {
                 title: title,
                 cost: price,
                 href: href,
                 hasDiscount: hasDiscount,
+                quantity: weight,
                 store: "W"
-            })
-        })
+            }
+            await Item.create(itemEntry)
+        }
         return data
     }, data)
 
@@ -65,21 +79,33 @@ async function westZonePullFunc(skill, location) {
 
         let itemsInit = document.getElementsByClassName("css-dub728");
         let items = Array.from(itemsInit);
-        items.forEach((item, index) => {
+        for (const item of items) {
+            const index = items.indexOf(item);
             let weight = item.querySelector(".css-149zse0").innerText
             let title = weight ? item.querySelector("[data-testid=\"product_name\"]").innerText + " " + weight.split(" ")[0] : item.querySelector("[data-testid=\"product_name\"]").innerText;
             let price = "AED " + item.querySelector(".css-14zpref").innerText + item.querySelector(".css-1pjcwg4").innerHTML
             let href = item.querySelector("[data-testid=\"product_image_main\"]").src;
             let hasDiscount = item.querySelector("[data-testid=\"product-card-discount-price\"]") !== null;
             console.log("created entry")
-            data.list.push({
+            let rReg = /[\d|,|.|\+]+/g;
+            let weightFind = parseInt(title.match(rReg)[0]);
+            let lastWord = item.title.split(" ")
+            let pReg = /[Pp]/g
+            let kReg = /[Kk]/g
+            let lastWordA = lastWord[lastWord.length - 1]
+            let packet = lastWordA.match(pReg) === null
+            let kilos = lastWordA.match(kReg) !== null
+            let weightA = kilos ? weightFind * 1000 : weightFind
+            let itemEntry = {
                 title: title,
                 cost: price,
                 href: href,
                 hasDiscount: hasDiscount,
-                store: "C"
-            });
-        });
+                quantity: weightA,
+                store: "W"
+            }
+            await Item.create(itemEntry)
+        }
         return data;
     }, data)
 

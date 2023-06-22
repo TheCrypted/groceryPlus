@@ -1,7 +1,7 @@
 const {Model, DataTypes} = require("sequelize");
 const sequelize = require("../config/db");
-const Item = require("/storeItemModel.cjs")
-const User = require("/userModel.cjs")
+const Item = require("./storeItemModel.cjs")
+const User = require("./userModel.cjs")
 
 
 class Basket extends Model {}

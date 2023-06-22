@@ -1,6 +1,6 @@
 const {Model, DataTypes} = require("sequelize");
-const sequelize = require("../config/db");
-const Store = require("/storeModel.cjs")
+const sequelize = require("../config/db.cjs");
+const Store = require("./storeModel.cjs")
 
 
 
@@ -11,13 +11,21 @@ storeItem.init({
         type: DataTypes.STRING,
         allowNull: false
     },
-    price: {
+    href: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    cost: {
         type: DataTypes.DECIMAL,
         allowNull: false
     },
     quantity: {
         type: DataTypes.INTEGER,
         allowNull: true
+    },
+    hasDiscount: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false
     },
     storeID: {
         type: DataTypes.INTEGER,

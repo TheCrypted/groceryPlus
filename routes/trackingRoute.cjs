@@ -2,9 +2,11 @@ const express = require('express')
 const westZonePullFunc = require("../utils/westZonePull.cjs");
 const carrPullFunc = require("../utils/carrPull.cjs");
 const router = express.Router();
-const itemsDB = require("../config/db.cjs");
-const Item = require("../models/storeItemModel.cjs")
+const itemsDB = require("../config/db.cjs")
 
+itemsDB.sync().then(()=>{
+    console.log("DB is ready")
+})
 router.post('/indeed', async function(req, res){
     try {
         let { skill, location } = req.body
@@ -17,8 +19,8 @@ router.post('/indeed', async function(req, res){
     } catch (e) {
         console.log(e)
     }
-
 })
+
 
 
 module.exports = router;
