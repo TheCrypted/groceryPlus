@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const carrPullFunc = require("./carrPull.cjs");
 
 let data = {
     list : []
@@ -6,7 +7,7 @@ let data = {
 
 
 async function westZonePullFunc(skill, location) {
-    const browser = await puppeteer.launch({headless: false})
+    const browser = await puppeteer.launch({headless: "new"})
     const page = await browser.newPage();
 
     let origLink = `https://www.luluhypermarket.com/en-ae/grocery-fresh-food-fruits-vegetables/c/HY00216090`
@@ -16,7 +17,7 @@ async function westZonePullFunc(skill, location) {
     })
     let previousHeight = await page.evaluate('document.body.scrollHeight');
     let i = 0
-    while (i < 5) {
+    while (i < 4) {
         await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
         const currentHeight = await page.evaluate('document.body.scrollHeight');
         if (currentHeight === previousHeight) {
@@ -45,6 +46,10 @@ async function westZonePullFunc(skill, location) {
         })
         return data
     }, data)
+
+    let carrPull = carrPullFunc(skill, location, browser)
+
+    data.listCarr.push(carrPull)
 
     console.log(`Successfully collected ${data.list.length} opportunities`)
     await browser.close();

@@ -24,8 +24,8 @@ function App() {
                         })
                     })
                     let list = await response.json()
-                    setItems(list.list)
-                    console.log("list")
+                    setItems(list.listCarr)
+                    // console.log("list")
                     // for(let item of list.list) {
                     //     console.log(job.title, job.salary, job.href)
                     // }
@@ -47,10 +47,10 @@ function App() {
                         let lastWordA = lastWord[lastWord.length - 1]
                         let packet = lastWordA.match(pReg) === null
                         let kilos = lastWordA.match(kReg) !== null
-                        let weight = item.title.match(r)
+                        let weight
                         weight = kilos ? parseInt(item.title.match(r)) * 1000 : parseInt(item.title.match(r))
                         let price = parseInt(item.cost.split("D")[1].slice(1))/weight
-                        console.log(weight)
+                        // console.log(weight)
                         let redComp = Math.min(price * 2500, 250)
                         let backgroundCol = packet ? `rgba(${redComp},40,${255-redComp}, 1)` : "rgba(100, 100, 100)";
                         // console.log(item.cost.split("D")[1].slice(1))
@@ -59,7 +59,7 @@ function App() {
                                 <img className="rounded-t-xl w-full h-full" src={item.href} alt={item.title}/>
                                 <div  className="grid grid-cols-[70%_30%] bg-red-500 rounded-b-xl text-white flex justify-center items-center text-2xl font-bold">
                                     <div className="rounded-bl-xl h-full w-full bg-slate-800 text-white flex justify-center items-center pl-4 font-semibold text-white text-2xl">{item.title}</div>
-                                    <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex justify-center items-center pl-4 font-bold text-white text-2xl">{item.cost.split("D")[1].slice(1)}</div>
+                                    <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost.split("D")[1].slice(1)}</p></div>
 
                                 </div>
                             </div>
