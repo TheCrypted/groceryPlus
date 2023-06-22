@@ -6,12 +6,11 @@ const router = express.Router();
 router.post('/indeed', async function(req, res){
     try {
         let { skill, location } = req.body
-        let scrapeWest = await westZonePullFunc(skill, location);
+        let scrape = await westZonePullFunc(skill, location);
         // let scrapeCarr = await carrPullFunc(skill, location);
         return res.status(200).send(JSON.stringify( {
             status: 'success',
-            listWest: scrapeWest.listWest,
-            listCarr: scrapeCarr
+            list: scrape.list,
         }))
     } catch (e) {
         console.log(e)

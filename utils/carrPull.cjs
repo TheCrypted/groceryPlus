@@ -13,6 +13,7 @@ async function carrPullFunc(skill, location, browser){
 
     let data = page.evaluate(async () => {
         let data = [];
+
         let itemsInit = document.getElementsByClassName("css-dub728");
         let items = Array.from(itemsInit);
         items.forEach((item, index) => {
