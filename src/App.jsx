@@ -13,18 +13,14 @@ function App() {
                 <div className="w-1/6 h-full text-white flex items-center p-6 text-2xl font-semibold">Search Items:</div>
                 <form className=" w-full h-full grid grid-cols-6" onSubmit={async (e) => {
                     e.preventDefault();
-                    let response = await fetch("http://localhost:3030/api/v1/indeed", {
-                        method: "POST",
+                    let response = await fetch("http://localhost:3030/api/v1/items", {
+                        method: "GET",
                         headers: {
                             "Content-type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            skill: skillRef.current.value,
-                            location: regionRef.current.value
-                        })
+                        }
                     })
-                    let list = await response.json()
-                    setItems(list.list)
+                    let resp = await response.json()
+                    setItems(resp.list)
                     // console.log("list")
                     // for(let item of list.list) {
                     //     console.log(job.title, job.salary, job.href)
@@ -47,17 +43,13 @@ function App() {
                             } else if (item.store === "C") {
                             colourMain = "rgba(40, 40, 100, 1)"
                         }
-                        let rReg = /[\d|,|.|\+]+/g;
-                        let weightFind = parseInt(item.title.match(rReg))
-                        if(weightFind){
+                        if(item.quantity){
                             let pReg = /[Pp]/g
-                            let kReg = /[Kk]/g
                             let lastWord = item.title.split(" ")
                             let lastWordA = lastWord[lastWord.length - 1]
                             let packet = lastWordA.match(pReg) === null
-                            let kilos = lastWordA.match(kReg) !== null
-                            let weight = kilos ? weightFind * 1000 : weightFind
-                            let price = parseInt(item.cost.split("D")[1].slice(1))/weight
+                            let weight = item.quantity
+                            let price = item.cost/weight
                             let redComp = Math.min(price * 2500, 250)
                             backgroundCol = packet ? `rgba(${redComp},40,${255-redComp}, 1)` : "rgba(100, 100, 100)";
                         }
@@ -66,7 +58,7 @@ function App() {
                                 <img className="rounded-t-xl w-full h-full" src={item.href} alt={item.title}/>
                                 <div   className="grid grid-cols-[70%_30%] bg-red-500 rounded-b-xl text-white flex justify-center items-center text-2xl font-bold">
                                     <div style={{backgroundColor: colourMain}} className="rounded-bl-xl h-full w-full  text-white flex justify-center items-center pl-4 font-semibold text-white text-2xl">{item.title}</div>
-                                    { <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost.split("D")[1].slice(1)}</p></div>}
+                                    { <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost}</p></div>}
                                     {/*{ item.store === "C" && <div style={{backgroundColor: "red"}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost}</p></div> }*/}
 
                                 </div>

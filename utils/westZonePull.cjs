@@ -3,11 +3,6 @@ const carrPullFunc = require("./carrPull.cjs");
 const itemsDB = require("../config/db.cjs");
 const Item = require("../models/storeItemModel.cjs")
 
-let data = {
-    list : [],
-    listCarr: []
-}
-
 
 async function westZonePullFunc(skill, location) {
     const browser = await puppeteer.launch({headless: false})
@@ -30,7 +25,8 @@ async function westZonePullFunc(skill, location) {
         i++
     }
     i = 0;
-    data = await page.evaluate(async (data) => {
+    let entriesLulu = await page.evaluate(async (data) => {
+        let entries = []
         let itemsInit = document.getElementsByClassName("product__list--item")
         let items = Array.from(itemsInit)
         for (const item of items) {
@@ -41,8 +37,9 @@ async function westZonePullFunc(skill, location) {
             let href = item.querySelector("img") && item.querySelector("img").src;
             let costItems = item.querySelectorAll(".product-price > span")
             let price = costItems[costItems.length-1].innerText
+
             let rReg = /[\d|,|.|\+]+/g;
-            let weightFind = parseInt(title.match(rReg)[0]);
+            let weightFind = title.match(rReg) ?  parseInt(title.match(rReg)[0]) : null;
             let lastWord = item.title.split(" ")
             let pReg = /[Pp]/g
             let kReg = /[Kk]/g
@@ -50,18 +47,21 @@ async function westZonePullFunc(skill, location) {
             let packet = lastWordA.match(pReg) === null
             let kilos = lastWordA.match(kReg) !== null
             let weight = kilos ? weightFind * 1000 : weightFind
+            let cost = parseFloat(price.split("D")[1].slice(1))
             let itemEntry = {
                 title: title,
-                cost: price,
+                cost: cost,
                 href: href,
                 hasDiscount: hasDiscount,
                 quantity: weight,
-                store: "W"
+                storeID: "L"
             }
-            await Item.create(itemEntry)
+            entries.push(itemEntry)
         }
-        return data
-    }, data)
+        return entries;
+    })
+
+    await Item.bulkCreate(entriesLulu)
 
     origLink = "https://www.carrefouruae.com/mafuae/en/fruits-vegetables/n/c/clp_circular-icon-fruits-vegetables"
 
@@ -74,8 +74,9 @@ async function westZonePullFunc(skill, location) {
         window.scrollTo({ top: 1500, behavior: 'smooth' });
     });
     await page.waitForSelector('.css-rz0elg', { visible: true })
-    data = await page.evaluate(async (data) => {
+    let entriesCarr = await page.evaluate(async (data) => {
         // data.listCarr = [];
+        let entries = []
 
         let itemsInit = document.getElementsByClassName("css-dub728");
         let items = Array.from(itemsInit);
@@ -86,9 +87,9 @@ async function westZonePullFunc(skill, location) {
             let price = "AED " + item.querySelector(".css-14zpref").innerText + item.querySelector(".css-1pjcwg4").innerHTML
             let href = item.querySelector("[data-testid=\"product_image_main\"]").src;
             let hasDiscount = item.querySelector("[data-testid=\"product-card-discount-price\"]") !== null;
-            console.log("created entry")
+
             let rReg = /[\d|,|.|\+]+/g;
-            let weightFind = parseInt(title.match(rReg)[0]);
+            let weightFind = title.match(rReg) ?  parseInt(title.match(rReg)[0]) : null;
             let lastWord = item.title.split(" ")
             let pReg = /[Pp]/g
             let kReg = /[Kk]/g
@@ -96,22 +97,24 @@ async function westZonePullFunc(skill, location) {
             let packet = lastWordA.match(pReg) === null
             let kilos = lastWordA.match(kReg) !== null
             let weightA = kilos ? weightFind * 1000 : weightFind
+            let cost = parseFloat(price.split("D")[1].slice(1))
             let itemEntry = {
                 title: title,
-                cost: price,
+                cost: cost,
                 href: href,
                 hasDiscount: hasDiscount,
                 quantity: weightA,
-                store: "W"
+                storeID: "L"
             }
-            await Item.create(itemEntry)
+            entries.push(itemEntry)
         }
-        return data;
-    }, data)
+        return entries;
+    })
 
-    console.log(`Successfully collected ${data.list.length} opportunities`)
+    await Item.bulkCreate(entriesCarr)
+
+    console.log(`Successfully collected items`)
     await browser.close();
-    return data
 }
 
 

@@ -7,7 +7,7 @@ class Store extends Model {}
 Store.init({
     id: {
         type: DataTypes.STRING,
-        isPrimaryKey: true
+        primaryKey: true
     },
     name: {
         type: DataTypes.STRING,
