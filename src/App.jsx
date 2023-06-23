@@ -1,10 +1,21 @@
 import './App.css'
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 function App() {
     let skillRef = useRef(null);
     let regionRef = useRef(null);
     const [items, setItems] = useState([])
+    // fetch("http://localhost:3030/api/v1/items")
+    //     .then(r => r.json())
+    //     .then(resp => setItems(resp.list))
+    //     .catch(err => console.log(err))
+
+    useEffect(() => {
+        fetch("http://localhost:3030/api/v1/items")
+            .then(r => r.json())
+            .then(resp => setItems(resp.list))
+            .catch(err => console.log(err))
+    }, [])
 
   return (
     <>
@@ -13,7 +24,7 @@ function App() {
                 <div className="w-1/6 h-full text-white flex items-center p-6 text-2xl font-semibold">Search Items:</div>
                 <form className=" w-full h-full grid grid-cols-6" onSubmit={async (e) => {
                     e.preventDefault();
-                    let response = await fetch("http://localhost:3030/api/v1/items", {
+                    let response = await fetch(`http://localhost:3030/api/v1/itemsquery?q=${skillRef.current.value}`, {
                         method: "GET",
                         headers: {
                             "Content-type": "application/json"
@@ -21,10 +32,6 @@ function App() {
                     })
                     let resp = await response.json()
                     setItems(resp.list)
-                    // console.log("list")
-                    // for(let item of list.list) {
-                    //     console.log(job.title, job.salary, job.href)
-                    // }
                 }
                 }>
                 <input required ref={skillRef} type="text" placeholder="Enter job title" className="h-full col-span-4 border-r-2 border-black p-4 bg-slate-800 text-2xl focus:bg-slate-900 focus:outline-none font-semibold"/>
@@ -38,56 +45,41 @@ function App() {
                     items.map((item, i) => {
                         let backgroundCol;
                         let colourMain;
-                        if (item.store === "W") {
+                        if (item.storeID === "L") {
                             colourMain = "rgba(80, 40, 40, 1)"
-                            } else if (item.store === "C") {
+                            } else if (item.storeID === "C") {
                             colourMain = "rgba(40, 40, 100, 1)"
                         }
+                        let titleTrim = item.title.slice(0, 25);
+                        let weight
+                        let packet
                         if(item.quantity){
                             let pReg = /[Pp]/g
                             let lastWord = item.title.split(" ")
                             let lastWordA = lastWord[lastWord.length - 1]
-                            let packet = lastWordA.match(pReg) === null
-                            let weight = item.quantity
+                            packet = lastWordA.match(pReg) === null
+                            weight = item.quantity.toString().includes(".") || item.quantity < 5? item.quantity * 1000 : item.quantity;
                             let price = item.cost/weight
                             let redComp = Math.min(price * 2500, 250)
+                            titleTrim = item.title.split(item.quantity.toString())[0].slice(0, 25)
                             backgroundCol = packet ? `rgba(${redComp},40,${255-redComp}, 1)` : "rgba(100, 100, 100)";
                         }
                         return (
                             <div key={i} className="w-[19.2%] bg-gray-800 shadow-xl h-1/2 bg-white rounded-xl hover:bg-gray-700 hover:cursor-pointer grid grid-rows-[70%_30%]">
                                 <img className="rounded-t-xl w-full h-full" src={item.href} alt={item.title}/>
-                                <div   className="grid grid-cols-[70%_30%] bg-red-500 rounded-b-xl text-white flex justify-center items-center text-2xl font-bold">
-                                    <div style={{backgroundColor: colourMain}} className="rounded-bl-xl h-full w-full  text-white flex justify-center items-center pl-4 font-semibold text-white text-2xl">{item.title}</div>
+                                <div   className="grid grid-cols-[70%_30%] bg-red-500 rounded-b-xl text-white flex justify-left items-center text-2xl font-bold">
+                                    <div style={{backgroundColor: colourMain}} className="rounded-bl-xl h-full w-full  text-white grid grid-rows-[65%_35%] justify-start items-center pl-4 pr-4 font-semibold text-white text-2xl">
+                                        <div>{titleTrim}</div>
+                                        {packet && < div className="text-lg flex items-center text-gray-300">{weight + "g"}</div>}
+                                        {!packet && < div className="text-lg flex items-center text-gray-300">1 Packet</div>}
+                                    </div>
                                     { <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost}</p></div>}
-                                    {/*{ item.store === "C" && <div style={{backgroundColor: "red"}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost}</p></div> }*/}
-
                                 </div>
                             </div>
                         )
                     })
                 }
-
-
             </div>
-
-            {/*<button className="bg-slate-500 h-1/5 w-1/5 rounded-xl hover:bg-slate-600 text-white font-bold text-2xl" onClick={async () => {*/}
-            {/*    let response = await fetch("http://localhost:3030/api/v1/indeed", {*/}
-            {/*        method: "POST",*/}
-            {/*        headers: {*/}
-            {/*            "Content-type": "application/json"*/}
-            {/*        },*/}
-            {/*        body: JSON.stringify({*/}
-            {/*            skill: "Fresher",*/}
-            {/*            location: "Dubai"*/}
-            {/*        })*/}
-            {/*    })*/}
-            {/*    let list = await response.json()*/}
-            {/*    console.log(list)*/}
-            {/*    for(let item of list.list) {*/}
-            {/*        console.log(item.title, item.salary, item.href)*/}
-            {/*    }*/}
-            {/*}*/}
-            {/*}>Test API</button>*/}
         </div>
     </>
   )

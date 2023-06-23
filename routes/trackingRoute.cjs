@@ -4,6 +4,7 @@ const carrPullFunc = require("../utils/carrPull.cjs");
 const router = express.Router();
 const itemsDB = require("../config/db.cjs")
 const Item = require("../models/storeItemModel.cjs")
+const {Op} = require("sequelize");
 
 itemsDB.sync().then(()=>{
     console.log("DB is ready")
@@ -22,9 +23,34 @@ router.post('/indeed', async function(req, res){
     }
 })
 
+
+router.get("/itemsquery", async (req, res) => {
+    const q = req.query.q;
+    try {
+        let items = await Item.findAll({
+            where: {
+                title: {
+                    [Op.like]: `%${q}%`
+                }
+            }
+        })
+        res.status(200).send(JSON.stringify({
+            status: "Success",
+            list: items
+        }))
+    } catch (e) {
+        res.status(503).send({
+            status: "Failure"
+        })
+        console.log(e)
+    }
+
+})
 router.get("/items", async (req, res) => {
     try {
-        let items = await Item.findAll()
+        let items = await Item.findAll({
+            order: [["hasDiscount", "ASC"]]
+        })
         res.status(200).send(JSON.stringify({
                 status: "Success",
                 list: items

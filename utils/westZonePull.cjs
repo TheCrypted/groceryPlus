@@ -104,7 +104,7 @@ async function westZonePullFunc(skill, location) {
                 href: href,
                 hasDiscount: hasDiscount,
                 quantity: weightA,
-                storeID: "L"
+                storeID: "C"
             }
             entries.push(itemEntry)
         }
