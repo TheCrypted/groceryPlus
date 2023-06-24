@@ -1,6 +1,6 @@
 const express = require('express')
 const westZonePullFunc = require("../utils/westZonePull.cjs");
-const carrPullFunc = require("../utils/carrPull.cjs");
+const carrPullFunc = require("../utils/noonPull.cjs");
 const router = express.Router();
 const itemsDB = require("../config/db.cjs")
 const Item = require("../models/storeItemModel.cjs")
@@ -49,7 +49,7 @@ router.get("/itemsquery", async (req, res) => {
 router.get("/items", async (req, res) => {
     try {
         let items = await Item.findAll({
-            order: [["hasDiscount", "ASC"]]
+            order: [["hasDiscount", "DESC"]]
         })
         res.status(200).send(JSON.stringify({
                 status: "Success",

@@ -4,11 +4,8 @@ import {useEffect, useRef, useState} from "react";
 function App() {
     let skillRef = useRef(null);
     let regionRef = useRef(null);
+    // let homeButton = useRef(null);
     const [items, setItems] = useState([])
-    // fetch("http://localhost:3030/api/v1/items")
-    //     .then(r => r.json())
-    //     .then(resp => setItems(resp.list))
-    //     .catch(err => console.log(err))
 
     useEffect(() => {
         fetch("http://localhost:3030/api/v1/items")
@@ -21,7 +18,13 @@ function App() {
     <>
         <div className="h-full w-full items-center justify-center">
             <div className="bg-black w-full h-[9%] text-white flex shadow-2xl">
-                <div className="w-1/6 h-full text-white flex items-center p-6 text-2xl font-semibold">Search Items:</div>
+                <div className="w-1/6 h-full text-white flex justify-center items-center p-6 text-3xl font-semibold hover:bg-gray-900 hover:cursor-pointer" onClick={()=>{
+                    fetch("http://localhost:3030/api/v1/items")
+                        .then(r => r.json())
+                        .then(resp => setItems(resp.list))
+                        .catch(err => console.log(err))
+                }
+                }>Grocery+</div>
                 <form className=" w-full h-full grid grid-cols-6" onSubmit={async (e) => {
                     e.preventDefault();
                     let response = await fetch(`http://localhost:3030/api/v1/itemsquery?q=${skillRef.current.value}`, {
@@ -34,7 +37,7 @@ function App() {
                     setItems(resp.list)
                 }
                 }>
-                <input required ref={skillRef} type="text" placeholder="Enter job title" className="h-full col-span-4 border-r-2 border-black p-4 bg-slate-800 text-2xl focus:bg-slate-900 focus:outline-none font-semibold"/>
+                <input required ref={skillRef} type="text" placeholder="Enter item name" className="h-full col-span-4 border-r-2 border-black p-4 bg-slate-800 text-2xl focus:bg-slate-900 focus:outline-none font-semibold"/>
                 <input required ref={regionRef} type="text" placeholder="Enter region" className="h-full col-span-1 p-4 bg-slate-800 text-2xl focus:bg-slate-900 focus:outline-none font-semibold"/>
                 <button type="submit" className=" h-full col-span-1 text-white text-2xl font-semibold ">Search</button>
                 </form>
@@ -47,8 +50,10 @@ function App() {
                         let colourMain;
                         if (item.storeID === "L") {
                             colourMain = "rgba(80, 40, 40, 1)"
-                            } else if (item.storeID === "C") {
+                        } else if (item.storeID === "C") {
                             colourMain = "rgba(40, 40, 100, 1)"
+                        } else if (item.storeID === "N"){
+                            colourMain = "#B58B00"
                         }
                         let titleTrim = item.title.slice(0, 25);
                         let weight
@@ -70,10 +75,10 @@ function App() {
                                 <div   className="grid grid-cols-[70%_30%] bg-red-500 rounded-b-xl text-white flex justify-left items-center text-2xl font-bold">
                                     <div style={{backgroundColor: colourMain}} className="rounded-bl-xl h-full w-full  text-white grid grid-rows-[65%_35%] justify-start items-center pl-4 pr-4 font-semibold text-white text-2xl">
                                         <div>{titleTrim}</div>
-                                        {packet && < div className="text-lg flex items-center text-gray-300">{weight + "g"}</div>}
+                                        {packet && < div className="text-lg flex items-center text-gray-300">{weight +"g · " + (item.cost*1000/weight).toString().slice(0, 5) + "د.إ per kg"}</div>}
                                         {!packet && < div className="text-lg flex items-center text-gray-300">1 Packet</div>}
                                     </div>
-                                    { <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/5">Discounted</small>}<p>{item.cost}</p></div>}
+                                    { <div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">{item.hasDiscount && <small className="text-sm h-1/ w-full flex justify-center">Discounted </small>}<p>{item.cost}<small>د.إ</small></p></div>}
                                 </div>
                             </div>
                         )

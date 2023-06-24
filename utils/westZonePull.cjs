@@ -1,11 +1,11 @@
 const puppeteer = require("puppeteer");
-const carrPullFunc = require("./carrPull.cjs");
+const carrPullFunc = require("./noonPull.cjs");
 const itemsDB = require("../config/db.cjs");
 const Item = require("../models/storeItemModel.cjs")
 
 
-async function westZonePullFunc(skill, location) {
-    const browser = await puppeteer.launch({headless: false})
+async function westZonePullFunc() {
+    const browser = await puppeteer.launch({headless: "new"})
     const page = await browser.newPage();
 
     let origLink = `https://www.luluhypermarket.com/en-ae/grocery-fresh-food-fruits-vegetables/c/HY00216090`
@@ -28,7 +28,7 @@ async function westZonePullFunc(skill, location) {
     let entriesLulu = await page.evaluate(async (data) => {
         let entries = []
         let itemsInit = document.getElementsByClassName("product__list--item")
-        let items = Array.from(itemsInit)
+        let items = Array.from(itemsInit).slice(0, 140)
         for (const item of items) {
             const index = items.indexOf(item);
             let imageHold = item.querySelector(".product-img")

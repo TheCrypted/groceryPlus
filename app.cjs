@@ -3,6 +3,7 @@ const cors = require('cors')
 const {urlencoded} = require("express");
 const routes = require("./routes/trackingRoute.cjs")
 const westZonePullFunc = require("./utils/westZonePull.cjs")
+const noonPullFunc = require("./utils/noonPull.cjs")
 const itemsDB = require("./config/db.cjs");
 const Store = require("./models/storeModel.cjs")
 const Items = require("./models/storeItemModel.cjs")
@@ -24,12 +25,16 @@ const initializeApp = async () => {
         {
             id: "L",
             name: "Lulu Hypermarket"
+        }, {
+            id: "N",
+            name: "Noon Online"
         }
     ];
     await Items.destroy({truncate: true})
     await Store.destroy({truncate: true})
     await Store.bulkCreate(storeEntry);
-    await westZonePullFunc("alpha", "beta");
+    // await westZonePullFunc();
+    await noonPullFunc()
 
     app.use("/api/v1", routes);
 
