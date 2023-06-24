@@ -7,6 +7,7 @@ const noonPullFunc = require("./utils/noonPull.cjs")
 const itemsDB = require("./config/db.cjs");
 const Store = require("./models/storeModel.cjs")
 const Items = require("./models/storeItemModel.cjs")
+const carrPullFunc = require("./utils/carrPull.cjs");
 const app = express();
 const PORT = 3030;
 
@@ -33,7 +34,8 @@ const initializeApp = async () => {
     await Items.destroy({truncate: true})
     await Store.destroy({truncate: true})
     await Store.bulkCreate(storeEntry);
-    // await westZonePullFunc();
+    await westZonePullFunc();
+    await carrPullFunc();
     await noonPullFunc()
 
     app.use("/api/v1", routes);

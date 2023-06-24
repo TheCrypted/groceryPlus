@@ -16,16 +16,15 @@ async function noonPullFunc(){
     });
     let previousHeight = await page.evaluate('document.body.scrollHeight');
     let i = 0
-    while (true) {
+    while (i < 10) {
         await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
         const currentHeight = await page.evaluate('document.body.scrollHeight');
-        if (currentHeight === previousHeight) {
-            break;
-        }
-        previousHeight = currentHeight;
+
+        await page.waitForSelector(`.sc-1b0e2885-6:nth-child(${(i+1)*8})`)
         i++
     }
     i = 0;
+
     let data = await page.evaluate(async () => {
         let data = [];
         let itemsCollection = document.getElementsByClassName("sc-1b0e2885-6");
