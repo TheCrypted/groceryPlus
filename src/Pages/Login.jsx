@@ -7,12 +7,13 @@ export const Login = () => {
 	const navigate = useNavigate()
 	return (
 		<div className=" w-full h-full bg-gray-950 text-black flex items-center justify-center">
-			<form className="w-1/4 h-[50%] bg-gray-200 rounded-xl drop-shadow-2xl p-3" onSubmit={async ()=>{
+			<form className="w-1/4 h-[50%] bg-gray-200 rounded-xl drop-shadow-2xl p-3" onSubmit={async (e)=>{
+				e.preventDefault()
 				let userAuth = {
 					email: emailRef.current.value,
 					password: pwdRef.current.value
 				}
-				let response = await fetch("http://localhost:3030/api/v1/signup", {
+				let response = await fetch("http://localhost:3030/api/v1/signin", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json"
@@ -20,7 +21,12 @@ export const Login = () => {
 					body: JSON.stringify(userAuth)
 				}).catch(e => console.log(e))
 				if(response.ok){
+					let {token} = await response.json()
+					localStorage.setItem("token", token)
 					navigate("/")
+				} else {
+					let {message} = await response.json()
+					alert(message)
 				}
 
 			}}>

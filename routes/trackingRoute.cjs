@@ -1,16 +1,40 @@
 const express = require('express')
 const westZonePullFunc = require("../utils/westZonePull.cjs");
-const carrPullFunc = require("../utils/noonPull.cjs");
 const router = express.Router();
 const itemsDB = require("../config/db.cjs")
 const Item = require("../models/storeItemModel.cjs")
 const User = require("../models/userModel.cjs")
 const {Op} = require("sequelize");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 itemsDB.sync().then(()=>{
     console.log("DB is ready")
 })
+function genToken(user) {
+    const payload = {
+        email: user.email,
+        password: user.password,
+        name: user.name
+    }
+    const key = "qnWmmdNaYVmJy9H8WZ9rDLGuyolV7lGg"
+    return jwt.sign(payload, key, {
+        expiresIn: "1 hour"
+    })
+}
+function authToken(req, res, next){
+    const token = req.headers.auth
+    if(!token){
+        return res.status(401).json({ message: 'No token provided' });
+    }
+    jwt.verify(token, "qnWmmdNaYVmJy9H8WZ9rDLGuyolV7lGg", (err, user)=>{
+        if(err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+        req.user = user
+    })
+    next()
+}
 router.post('/indeed', async function(req, res){
     try {
         let { skill, location } = req.body
@@ -55,6 +79,12 @@ router.post("/signup", async function(req, res){
     }
 })
 
+router.get("/protected", authToken, (req, res) => {
+    res.json({
+        message: "token verified"
+    })
+})
+
 router.post("/signin", async function(req, res){
     try {
         let {email, password} = req.body;
@@ -70,9 +100,18 @@ router.post("/signin", async function(req, res){
             }))
         } else {
             let passCheck = await bcrypt.compare(password, userExists.password)
-            res.status(200).send(JSON.stringify({
-                status: "success"
-            }))
+            if(passCheck) {
+                let token = genToken(userExists)
+                res.status(200).send(JSON.stringify({
+                    status: "success",
+                    token: token
+                }))
+            } else {
+                res.status(403).send(JSON.stringify({
+                    status: "failure",
+                    message: "Invalid credentials"
+                }))
+            }
         }
     } catch (e) {
         console.log(e)

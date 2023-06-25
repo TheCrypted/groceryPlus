@@ -27,7 +27,7 @@ Basket.init({
 
 
 }, {
-    sequelize, modelName: "userTable"
+    sequelize, modelName: "basketTable"
 })
 
 Basket.belongsTo(User)

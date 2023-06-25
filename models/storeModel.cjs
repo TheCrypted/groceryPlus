@@ -15,7 +15,7 @@ Store.init({
     }
 
 }, {
-    sequelize, modelName: "userTable"
+    sequelize, modelName: "storeTable"
 })
 
 module.exports = Store;
