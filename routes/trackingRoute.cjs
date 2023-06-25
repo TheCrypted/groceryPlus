@@ -32,8 +32,8 @@ function authToken(req, res, next){
             return res.status(403).json({ message: 'Invalid token' });
         }
         req.user = user
+        next()
     })
-    next()
 }
 router.post('/indeed', async function(req, res){
     try {
@@ -80,9 +80,10 @@ router.post("/signup", async function(req, res){
 })
 
 router.get("/protected", authToken, (req, res) => {
-    res.json({
-        message: "token verified"
-    })
+    res.status(201).send(JSON.stringify({
+        message: "token verified",
+        user: req.user
+    }))
 })
 
 router.post("/signin", async function(req, res){

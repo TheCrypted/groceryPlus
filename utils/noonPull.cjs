@@ -6,7 +6,7 @@ itemsDB.sync().then(()=>{
     console.log("DB synced noonPull")
 })
 async function noonPullFunc(){
-    const browser = await puppeteer.launch({headless: false});
+    const browser = await puppeteer.launch({headless: "new"});
     const page = await browser.newPage();
     let origLink = "https://grocery.noon.com/daily-fresh-produce"
 

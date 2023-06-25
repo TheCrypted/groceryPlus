@@ -9,33 +9,75 @@ export function Home() {
 	let regionRef = useRef(null);
 	// let homeButton = useRef(null);
 	const [items, setItems] = useState([])
+	const [logState, setLogState] = useState(false)
+	const [user, setUser] = useState(null)
 	const navigate = useNavigate()
+
+	const authCheck = async () => {
+		let token = localStorage.getItem("token")
+		if (!token) {
+			return {
+				loggedIn: false
+			}
+		}
+		let response = await fetch("http://localhost:3030/api/v1/protected", {
+			method: "GET",
+			headers: {
+				auth: token
+			}
+		})
+		if(response.ok){
+			let resp = await response.json();
+			setLogState(true)
+			return {
+				loggedIn: true,
+				user: resp.user
+			}
+		}
+	}
 
 	useEffect(() => {
 		fetch("http://localhost:3030/api/v1/items")
 			.then(r => r.json())
 			.then(resp => setItems(resp.list))
 			.catch(err => console.log(err))
+		authCheck().then(resp => {
+			setLogState(resp.loggedIn)
+			if(resp.loggedIn){
+				setUser(resp.user)
+			}
+
+			console.log(logState)
+		})
 	}, [])
+
 
 	return (
 		<>
 			<div className="h-full w-full items-center justify-center">
 				<div className="w-full h-[14%]">
 					<div className="w-full h-[30%] pt-1  bg-gray-950 flex items-center border-b-2 border-gray-900">
-						<div className="h-full pl-2 w-[20%] text-white font-semibold text-xl">Welcome Aman</div>
+						<div className="h-full pl-2 w-[20%] text-white font-semibold text-xl">Welcome {logState && user.name}</div>
 						<div className="h-full w-[70%]"></div>
-						<IconButton size="large" aria-label="Cart Icon showing items in cart" onClick={()=>{{/*navigate("/Cart")*/}}}>
+						<IconButton size="large" aria-label="Cart Icon showing items in cart" onClick={()=>{{navigate("/Shoppinglist")}}}>
 							<Badge badgeContent={3} color="error" variant="dot">
 								<ShoppingCartIcon sx={{
 									color: "white",
 								}}/>
 							</Badge>
 						</IconButton>
-						<div className="h-full pl-2 w-[10%] text-white font-semibold text-xl text-center pr-2 hover:underline hover:cursor-pointer" onClick={()=>{
-							navigate("/Login")
-						}
-						}>Login</div>
+						{!logState && <div
+							className="h-full pl-2 w-[10%] text-white font-semibold text-xl text-center pr-2 hover:underline hover:cursor-pointer"
+							onClick={() => {
+								navigate("/Login")
+							}
+							}>Login</div>}
+						{logState && <div
+							className="h-full pl-2 w-[10%] text-white font-semibold text-xl text-center pr-2 hover:underline hover:cursor-pointer"
+							onClick={() => {
+								navigate("/Login")
+							}
+							}>My Account</div>}
 					</div>
 					<div className="bg-black w-full h-[70%] text-white flex shadow-2xl">
 						<div className="w-1/6 h-full text-white flex justify-center items-center p-6 text-3xl font-semibold hover:bg-gray-900 hover:cursor-pointer" onClick={()=>{

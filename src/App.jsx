@@ -1,21 +1,32 @@
 import './App.css'
-import {createBrowserRouter, createRoutesFromElements, Route, RouterProvider, Routes} from "react-router-dom";
+import {createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider} from "react-router-dom";
 import {Home} from "./Pages/Home.jsx";
 import {Login} from "./Pages/Login.jsx";
 import {ShoppingList} from "./Pages/ShoppingList.jsx";
 import {SignUp} from "./Pages/SignUp.jsx";
+import {useEffect, useState} from "react";
 
-async function ProtectedRoute({children}) {
-    let token = localStorage.getItem('token')
-    let response = await fetch("http:localhost:3030/api/v1/protected", {
-        headers: {
-            auth: token
+function ProtectedRoute({children}) {
+    let [auth, setAuth] = useState(true);
+    useEffect(()=>{
+        const getAuth = async () => {
+            let token = localStorage.getItem('token')
+            let response = await fetch("http://localhost:3030/api/v1/protected", {
+                method: "GET",
+                headers: {
+                    auth: token
+                }
+            })
+            if(!response.ok) {
+                setAuth(false)
+            }
         }
-    })
-    if (response.ok) {
+        getAuth()
+    }, [])
+    if (auth) {
         return children
     } else {
-
+        return <Navigate to="/Login" />
     }
 }
 
@@ -24,7 +35,13 @@ const router = createBrowserRouter(
         <>
             <Route path="/" element={<Home />} />
             <Route path="/Login" element={<Login />} />
-            <Route path="/Shoppinglist" element={<ShoppingList />} />
+            {/*<ProtectedRoute>*/}
+                <Route path="/Shoppinglist" element={
+                    <ProtectedRoute>
+                        <ShoppingList />
+                    </ProtectedRoute>
+                } />
+            {/*</ProtectedRoute>*/}
             <Route path="/Signup" element={<SignUp />} />
         </>
     )
