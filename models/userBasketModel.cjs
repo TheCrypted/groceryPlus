@@ -23,6 +23,14 @@ Basket.init({
             model: User,
             key: "id"
         }
+    },
+    basketName: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    basketRepeat: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
 
 
