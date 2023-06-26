@@ -3,6 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import {Badge, IconButton} from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import {AccountDrop} from "../utils/AccountDrop.jsx";
 
 export function Home() {
 	let skillRef = useRef(null);
@@ -72,12 +73,7 @@ export function Home() {
 								navigate("/Login")
 							}
 							}>Login</div>}
-						{logState && <div
-							className="h-full pl-2 w-[10%] text-white font-semibold text-xl text-center pr-2 hover:underline hover:cursor-pointer"
-							onClick={() => {
-								navigate("/Login")
-							}
-							}>My Account</div>}
+						{logState && <AccountDrop />}
 					</div>
 					<div className="bg-black w-full h-[70%] text-white flex shadow-2xl">
 						<div className="w-1/6 h-full text-white flex justify-center items-center p-6 text-3xl font-semibold hover:bg-gray-900 hover:cursor-pointer" onClick={()=>{

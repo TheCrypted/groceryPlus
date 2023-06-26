@@ -13,6 +13,7 @@ itemsDB.sync().then(()=>{
 })
 function genToken(user) {
     const payload = {
+        id: user.id,
         email: user.email,
         password: user.password,
         name: user.name
