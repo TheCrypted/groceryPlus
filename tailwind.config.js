@@ -5,7 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "translucentWhite": "rgba(50, 50, 50, 0.5)",
+        "translucentHover": "rgba(20, 20, 20, 0.6)"
+      }
+    },
   },
   plugins: [],
 }

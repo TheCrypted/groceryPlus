@@ -12,7 +12,7 @@
   }
   .scrollbar::-webkit-scrollbar{
     background-color: rgba(255, 255, 255, 0);
-    width: 10px;
+    width: 5px;
   }
   .scrollbar::-webkit-scrollbar-thumb{
     background-color: white;
