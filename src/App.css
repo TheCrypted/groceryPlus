@@ -17,6 +17,14 @@
   .scrollbar::-webkit-scrollbar-thumb{
     background-color: white;
     border-radius: 10px;
+  }
+  .hide-spin-buttons::-webkit-inner-spin-button,
+  .hide-spin-buttons::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 
+  .hide-spin-buttons {
+    -moz-appearance: textfield;
   }
 }

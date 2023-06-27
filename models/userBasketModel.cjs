@@ -7,7 +7,6 @@ const User = require("./userModel.cjs")
 class Basket extends Model {}
 
 Basket.init({
-
     itemID: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -32,8 +31,6 @@ Basket.init({
         type: DataTypes.INTEGER,
         allowNull: false
     }
-
-
 }, {
     sequelize, modelName: "basketTable"
 })

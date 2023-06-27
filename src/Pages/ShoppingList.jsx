@@ -16,6 +16,8 @@ export const ShoppingList = () => {
 	let newRef = useRef()
 	let showSelect = useRef()
 	const searchRef = useRef()
+	let nameRef = useRef()
+	let [repeatDur, setRepeatDur] = useState(7)
 
 	let tempStore = useRef([]);
 
@@ -126,15 +128,30 @@ export const ShoppingList = () => {
 					setHeightState("135%")
 				}} ref={showSelect} className="h-[28vh] hover:cursor-pointer  w-full flex items-center justify-center top-[20%]"><AddCircleRounded fontSize="large" color="primary" className="mr-4"/> Add new Shopping List</div>
 				<div className="h-[60vh] w-full p-4">
-					<form className="h-full w-full">
-						<input placeholder="Enter List Name" type="text" className="h-[13%] mb-6 shadow-md transition rounded-md w-full bg-translucentDarken focus:bg-translucentHover text-white font-semibold text-3xl focus:outline-none pl-4 focus:shadow-xl"/>
+					<form className="h-full w-full" onSubmit={()=>{
+						fetch("http://localhost:3030/api/v1/newlist", {
+							Method: "POST",
+							headers: {
+								"Content-type": "application/json"
+							},
+							body: JSON.stringify({
+									itemIDs: tempStore.current,
+									listName: nameRef.current.value,
+									repeatDuration: repeatDur,
+									userID: user.id
+								})
+						}).then(response => response.json())
+							.catch(err => console.log(err))
+
+					}}>
+						<input required ref={nameRef} placeholder="Enter List Name" type="text" className="h-[13%] mb-6 shadow-md transition rounded-md w-full bg-translucentDarken focus:bg-translucentHover text-white font-semibold text-3xl focus:outline-none pl-4 focus:shadow-xl"/>
 						<div className="h-[13%] w-full text-white text-3xl pl-3 flex pr-3 mb-6">
 							<div className="w-2/6 flex items-center ">Select time between each trip</div>
 							<div className="w-4/6 flex justify-end">
-								<div className="w-[10%] h-full bg-translucentDarken hover:bg-translucentHover flex items-center justify-center rounded-l-md text-white font-bold text-2xl">7<sup className="text-gray-500 ml-1 text-sm">days</sup></div>
-								<div className="w-[10%] h-full bg-translucentDarken hover:bg-translucentHover flex items-center justify-center text-white font-bold text-2xl">14<sup className="text-gray-500 ml-1 text-sm">days</sup></div>
-								<div className="w-[10%] h-full bg-translucentDarken hover:bg-translucentHover flex items-center justify-center text-white font-bold text-2xl">1<sup className="text-gray-500 ml-1 text-sm">month</sup></div>
-								<input  className=" h-full w-[20%] shadow-md transition rounded-r-md w-full bg-translucentDarken focus:bg-translucentHover text-white font-semibold text-3xl focus:outline-none pl-4 focus:shadow-xl" placeholder="Custom time" type="text"/>
+								<div className="w-[10%] h-full bg-translucentDarken hover:bg-translucentHover flex items-center justify-center rounded-l-md text-white font-bold text-2xl" onClick={()=>setRepeatDur(7)}>7<sup className="text-gray-500 ml-1 text-sm">days</sup></div>
+								<div className="w-[10%] h-full bg-translucentDarken hover:bg-translucentHover flex items-center justify-center text-white font-bold text-2xl" onClick={()=>setRepeatDur(14)}>14<sup className="text-gray-500 ml-1 text-sm">days</sup></div>
+								<div className="w-[10%] h-full bg-translucentDarken hover:bg-translucentHover flex items-center justify-center text-white font-bold text-2xl" onClick={()=>setRepeatDur(31)}>1<sup className="text-gray-500 ml-1 text-sm">month</sup></div>
+								<input  className=" h-full w-[20%] shadow-md transition rounded-r-md w-full bg-translucentDarken focus:bg-translucentHover text-white font-semibold text-3xl focus:outline-none pl-4 focus:shadow-xl hide-spin-buttons" placeholder={`${repeatDur} or custom schedule`} type="number"/>
 							</div>
 						</div>
 						<div style={{boxShadow: "inset 0px 0px 80px rgba(0, 0, 0, 0.2)"}} className="h-[150%] w-full mb-6 rounded-md bg-translucentDarken p-4 flex flex-wrap">
@@ -225,8 +242,12 @@ export const ShoppingList = () => {
 						<div className="w-full flex justify-center h-full gap-4">
 							<button className="rounded-full transition-shadow h-[10%] w-1/6 border-2 border-red-500 text-red-500 font-semibold" onClick={(e)=>{
 								closeForm(e)
+								nameRef.current.value = "";
+								tempStore.current = []
 							}}>Clear Selection</button>
-							<button type="submit" className="rounded-full  transition-shadow bg-blue-500 h-[10%] w-1/6  text-gray-800 font-bold">Create List</button>
+							<button type="submit" className="rounded-full  transition-shadow bg-blue-500 h-[10%] w-1/6  text-gray-800 font-bold" onClick={(e)=>{
+								e.preventDefault()
+							}}>Create List</button>
 						</div>
 					</form>
 				</div>
