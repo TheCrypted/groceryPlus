@@ -3,7 +3,6 @@ import {useNavigate} from "react-router-dom";
 import {Badge, IconButton} from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart.js";
 import {AccountDrop} from "../utils/AccountDrop.jsx";
-import AddIcon from '@mui/icons-material/Add';
 import {AddCircleRounded} from "@mui/icons-material";
 
 export const ShoppingList = () => {
@@ -11,7 +10,7 @@ export const ShoppingList = () => {
 	const [user, setUser] = useState(null)
 	const [items, setItems] = useState([])
 	const [heightState, setHeightState] = useState("33%")
-	const [showForm, setShowForm] = useState(false)
+	const selectedGreen = useRef([])
 	const navigate = useNavigate()
 	let newRef = useRef()
 	let showSelect = useRef()
@@ -51,9 +50,13 @@ export const ShoppingList = () => {
 	}
 	function closeForm(e){
 		e.preventDefault();
-		console.log("button clicked")
 		showSelect.current.style.display = "flex"
 		setHeightState("33%")
+		for (let item of selectedGreen.current){
+			item.classList.toggle("bg-blue-500");
+			item.classList.toggle("bg-green-500");
+		}
+		selectedGreen.current = []
 	}
 	useEffect(() => {
 		authCheck().then(resp => {
@@ -128,20 +131,29 @@ export const ShoppingList = () => {
 					setHeightState("135%")
 				}} ref={showSelect} className="h-[28vh] hover:cursor-pointer  w-full flex items-center justify-center top-[20%]"><AddCircleRounded fontSize="large" color="primary" className="mr-4"/> Add new Shopping List</div>
 				<div className="h-[60vh] w-full p-4">
-					<form className="h-full w-full" onSubmit={()=>{
-						fetch("http://localhost:3030/api/v1/newlist", {
-							Method: "POST",
+					<form className="h-full w-full" onSubmit={async (e) => {
+						e.preventDefault()
+						let token = localStorage.getItem("token")
+						console.log(tempStore.current)
+						let response = await fetch("http://localhost:3030/api/v1/newlist", {
+							method: "POST",
 							headers: {
-								"Content-type": "application/json"
+								"Content-type": "application/json",
+								auth: token
 							},
 							body: JSON.stringify({
-									itemIDs: tempStore.current,
-									listName: nameRef.current.value,
-									repeatDuration: repeatDur,
-									userID: user.id
-								})
-						}).then(response => response.json())
-							.catch(err => console.log(err))
+								itemIDs: tempStore.current,
+								listName: nameRef.current.value,
+								repeatDuration: repeatDur
+							})
+						})
+						let answer= await response.json()
+						if(!response.ok && answer.message === "No token provided"){
+							navigate("/Login")
+						}
+						closeForm(e)
+						nameRef.current.value = "";
+						tempStore.current = []
 
 					}}>
 						<input required ref={nameRef} placeholder="Enter List Name" type="text" className="h-[13%] mb-6 shadow-md transition rounded-md w-full bg-translucentDarken focus:bg-translucentHover text-white font-semibold text-3xl focus:outline-none pl-4 focus:shadow-xl"/>
@@ -203,17 +215,19 @@ export const ShoppingList = () => {
 													<button className="pl-2 bg-blue-500 w-3/5 h-1/5 rounded-md text-white font-semibold flex items-center" onClick={(e)=>{
 														e.preventDefault();
 														if(e.target.classList.contains("bg-green-500")){
-															let tempArr = tempStore.current.filter((entry)=> entry.item.id !== item.id);
+															let tempArr = tempStore.current.filter((entry)=> entry.itemID !== item.id);
 															tempStore.current = tempArr
+
 														} else {
 															let quan = parseInt(e.target.querySelector("input").value)
 															if(!quan){
 																quan = 1
 															}
 															tempStore.current.push({
-																item: item,
+																itemID: item.id,
 																userQuantity: quan
 															})
+															selectedGreen.current.push(e.target)
 														}
 														e.target.classList.toggle("bg-blue-500")
 														e.target.classList.toggle("bg-green-500")
@@ -246,7 +260,6 @@ export const ShoppingList = () => {
 								tempStore.current = []
 							}}>Clear Selection</button>
 							<button type="submit" className="rounded-full  transition-shadow bg-blue-500 h-[10%] w-1/6  text-gray-800 font-bold" onClick={(e)=>{
-								e.preventDefault()
 							}}>Create List</button>
 						</div>
 					</form>

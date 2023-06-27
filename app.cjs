@@ -6,6 +6,7 @@ const westZonePullFunc = require("./utils/westZonePull.cjs")
 const noonPullFunc = require("./utils/noonPull.cjs")
 const itemsDB = require("./config/db.cjs");
 const Store = require("./models/storeModel.cjs")
+const UserBasket = require("./models/userBasketModel.cjs")
 const Items = require("./models/storeItemModel.cjs")
 const carrPullFunc = require("./utils/carrPull.cjs");
 const app = express();
@@ -31,12 +32,13 @@ const initializeApp = async () => {
             name: "Noon Online"
         }
     ];
-    await Items.destroy({truncate: true})
-    await Store.destroy({truncate: true})
-    await Store.bulkCreate(storeEntry);
-    await westZonePullFunc();
-    await carrPullFunc();
-    await noonPullFunc()
+    await UserBasket.destroy({truncate: true})
+    // await Items.destroy({truncate: true})
+    // await Store.destroy({truncate: true})
+    // await Store.bulkCreate(storeEntry);
+    // await westZonePullFunc();
+    // await carrPullFunc();
+    // await noonPullFunc()
 
     app.use("/api/v1", routes);
 

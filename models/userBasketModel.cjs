@@ -1,5 +1,5 @@
 const {Model, DataTypes} = require("sequelize");
-const sequelize = require("../config/db");
+const sequelize = require("../config/db.cjs");
 const Item = require("./storeItemModel.cjs")
 const User = require("./userModel.cjs")
 
@@ -28,6 +28,10 @@ Basket.init({
         allowNull: false
     },
     basketRepeat: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    itemQuantity: {
         type: DataTypes.INTEGER,
         allowNull: false
     }

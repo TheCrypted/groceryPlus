@@ -4,7 +4,8 @@ const router = express.Router();
 const itemsDB = require("../config/db.cjs")
 const Item = require("../models/storeItemModel.cjs")
 const User = require("../models/userModel.cjs")
-const {Op} = require("sequelize");
+const UserBasket = require("../models/userBasketModel.cjs")
+const {Op, DataTypes} = require("sequelize");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -156,6 +157,29 @@ router.get("/items", async (req, res) => {
         })
         console.log(e)
     }
+})
+
+router.post("/newlist", authToken, async(req, res) => {
+    try {
+        let {itemIDs, listName, repeatDuration} = req.body;
+        let user = req.user;
+        for (let itemID of itemIDs) {
+            let basketEntry = {
+                itemID: itemID.itemID,
+                userID: user.id,
+                basketName: listName,
+                basketRepeat: repeatDuration,
+                itemQuantity: itemID.userQuantity
+            }
+            await UserBasket.create(basketEntry)
+        }
+        res.status(200).send(JSON.stringify({
+            status: "success"
+        }))
+    } catch(e){
+        console.log(e)
+    }
+
 })
 
 
