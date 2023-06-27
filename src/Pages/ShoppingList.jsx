@@ -3,6 +3,7 @@ import {useNavigate} from "react-router-dom";
 import {Badge, IconButton} from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart.js";
 import {AccountDrop} from "../utils/AccountDrop.jsx";
+import AddIcon from '@mui/icons-material/Add';
 import {AddCircleRounded} from "@mui/icons-material";
 
 export const ShoppingList = () => {
@@ -16,12 +17,13 @@ export const ShoppingList = () => {
 	let showSelect = useRef()
 	const searchRef = useRef()
 
+	let tempStore = useRef([]);
+
 	useEffect( ()=>{
 		fetch("http://localhost:3030/api/v1/items")
 			.then(response => response.json())
 			.then(resp => setItems(resp.list))
 			.catch(err => {console.log(err)})
-		console.log("check")
 	}, [])
 	const authCheck = async () => {
 		let token = localStorage.getItem("token")
@@ -136,22 +138,31 @@ export const ShoppingList = () => {
 							</div>
 						</div>
 						<div style={{boxShadow: "inset 0px 0px 80px rgba(0, 0, 0, 0.2)"}} className="h-[150%] w-full mb-6 rounded-md bg-translucentDarken p-4 flex flex-wrap">
-							<form className="w-full h-[8%]" onSubmit={(e)=>{
-								e.preventDefault()
-								let query = searchRef.current.value;
-								fetch(`http://localhost:3030/api/v1/itemsquery?q=${query}`)
-									.then(response => response.json())
-									.then(resp => setItems(resp.list))
-									.catch(e => console.log(e))
-							}}>
+							<div className="w-full h-[8%] flex">
 								<input ref={searchRef} placeholder="Search Items" className="w-[85%] h-full shadow-md rounded-l-md bg-translucentHover focus:outline-none pl-3 text-white text-2xl focus:shadow-xl transition" type="text" />
-								<button className="w-[15%] rounded-r-md bg-translucentDarken h-full pt-1 focus:shadow-xl border-l-2 border-gray-700">Search</button>
-							</form>
+								<div className="w-[15%] rounded-r-md bg-translucentDarken h-full pt-1 focus:shadow-xl border-l-2 border-gray-700 flex items-center justify-center hover:cursor-pointer" onClick={()=>{
+									let query = searchRef.current.value;
+									if (query === ""){
+										fetch("http://localhost:3030/api/v1/items")
+											.then(response => response.json())
+											.then(resp => setItems(resp.list))
+											.catch(err => {console.log(err)})
+										return
+									}
+									fetch(`http://localhost:3030/api/v1/itemsquery?q=${query}`)
+										.then(response => response.json())
+										.then(resp => {
+											setItems(resp.list)
+										})
+										.catch(e => console.log(e))
+								}}>Search</div>
+							</div>
 							<div className="w-full h-[92%] pt-6 p-2 overflow-y-auto scrollbar flex flex-wrap gap-1">
 								{
-									items.map((item, index)=>{
+									items.map((item)=>{
 										let backgroundCol;
 										let colourMain;
+
 										if (item.storeID === "L") {
 											colourMain = "rgba(80, 40, 40, 1)"
 										} else if (item.storeID === "C") {
@@ -170,17 +181,39 @@ export const ShoppingList = () => {
 											backgroundCol = packet ? `rgba(${redComp},40,${255-redComp}, 1)` : "rgba(100, 100, 100)";
 										}
 										return (
-											<div key={index} className="w-[19.2%] hover:shadow-2xl mr-2 mb-3 transition-all bg-gray-800 h-3/5 bg-white rounded-xl hover:cursor-pointer grid grid-rows-[70%_30%]">
-											<img className="rounded-t-xl w-full h-full" src={item.href} alt={item.title}/>
+											<div key={item.id} className="w-[19.2%] hover:shadow-2xl mr-2 mb-3 transition-all bg-gray-800 h-3/5 bg-white rounded-xl hover:cursor-pointer grid grid-rows-[70%_30%]">
+												<div className="rounded-t-xl w-full h-full bg-contain bg-center bg-no-repeat flex justify-center items-end pb-3" style={{backgroundImage: `url(${item.href})`}}>
+													<button className="pl-2 bg-blue-500 w-3/5 h-1/5 rounded-md text-white font-semibold flex items-center" onClick={(e)=>{
+														e.preventDefault();
+														if(e.target.classList.contains("bg-green-500")){
+															let tempArr = tempStore.current.filter((entry)=> entry.item.id !== item.id);
+															tempStore.current = tempArr
+														} else {
+															let quan = parseInt(e.target.querySelector("input").value)
+															if(!quan){
+																quan = 1
+															}
+															tempStore.current.push({
+																item: item,
+																userQuantity: quan
+															})
+														}
+														e.target.classList.toggle("bg-blue-500")
+														e.target.classList.toggle("bg-green-500")
+
+													}}>Add to List <input onClick={(e)=>{
+														e.preventDefault();
+														e.stopPropagation()}} placeholder="1 Unit" type="text" className="w-[38%] pl-2 rounded-r-md h-full ml-2 bg-blue-600 focus:outline-none"/></button>
+												</div>
 											<div
 												className="grid grid-cols-[70%_30%] bg-red-500 rounded-b-xl text-white flex justify-left items-center text-2xl font-bold">
 												<div style={{backgroundColor: colourMain}} className="rounded-bl-xl h-full w-full  text-white grid grid-rows-[65%_35%] justify-start items-center pl-4 pr-4 font-semibold text-white text-2xl">
-													<div>Large Pumpkin Red</div>
+													<div>{item.title}</div>
 													<div
 														className="text-base flex items-center text-gray-300">{item.quantity + "g · " + (item.cost*1000/item.quantity).toString().slice(0, 5) + " د.إ per kg"}</div>
 												</div>
 												{<div style={{backgroundColor: backgroundCol}} className="rounded-br-xl h-full w-full text-white flex flex-wrap justify-center items-center font-bold text-white text-2xl">
-													<p>3.85<small>د.إ</small></p></div>}
+													{item.hasDiscount && <small className="text-sm h-1/ w-full flex justify-center">Discounted </small>}<p>{item.cost}<small>د.إ</small></p></div>}
 											</div>
 										</div>)
 									})
