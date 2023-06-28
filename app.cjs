@@ -32,7 +32,6 @@ const initializeApp = async () => {
             name: "Noon Online"
         }
     ];
-    // await UserBasket.destroy({truncate: true})
     // await Items.destroy({truncate: true})
     // await Store.destroy({truncate: true})
     // await Store.bulkCreate(storeEntry);

@@ -210,20 +210,24 @@ router.get("/lists", authToken, async(req, res) => {
     }
 })
 
-router.get("/itemquery", async (req, res) => {
+router.delete("/deletelist/:listname", auth, async (req, res) => {
     try {
-        let itemID = parseInt(req.headers.id)
-        let itemDetails = await Item.findByPk(itemID);
-        if(itemDetails){
-            res.status(200).json(itemDetails)
-        } else {
-            res.status(404).json({ message: 'Item not found' });
-        }
-
+        const listName = req.params.listname
+        console.log(listName)
+        await UserBasket.destroy({
+            where: {
+                basketName: listName
+            }
+        })
+        res.status(200).json({
+            message: "success"
+        })
     } catch(e){
         console.log(e)
+        res.status(404).json({
+            message: "failure"
+        })
     }
-
 })
 
 

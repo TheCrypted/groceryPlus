@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Badge, IconButton} from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart.js";
+import DeleteIcon from '@mui/icons-material/Delete';
 import {AccountDrop} from "../utils/AccountDrop.jsx";
 import {AddCircleRounded} from "@mui/icons-material";
 
@@ -12,7 +13,6 @@ export const ShoppingList = () => {
 	const [items, setItems] = useState([])
 	const [userLists, setUserLists] = useState([])
 	const [heightState, setHeightState] = useState("33%")
-	const [userItems, setUserItems] = useState([])
 	const selectedGreen = useRef([])
 	const navigate = useNavigate()
 	let newRef = useRef()
@@ -23,7 +23,7 @@ export const ShoppingList = () => {
 
 	let tempStore = useRef([]);
 
-	useEffect( ()=>{
+	function getItems(){
 		let token = localStorage.getItem("token")
 		if(!token){
 			navigate("/Login")
@@ -32,7 +32,9 @@ export const ShoppingList = () => {
 			.then(response => response.json())
 			.then(resp => setItems(resp.list))
 			.catch(err => {console.log(err)})
-
+	}
+	function getUserLists(){
+		let token = localStorage.getItem("token")
 		fetch("http://localhost:3030/api/v1/lists", {
 			method: "GET",
 			headers: {
@@ -42,6 +44,19 @@ export const ShoppingList = () => {
 		}).then(response => response.json())
 			.then(resp => setUserLists(resp.basketItems))
 			.catch(err => {console.log(err)})
+	}
+
+	useEffect( ()=>{
+		let token = localStorage.getItem("token")
+		if(!token){
+			navigate("/Login")
+		}
+		// fetch("http://localhost:3030/api/v1/items")
+		// 	.then(response => response.json())
+		// 	.then(resp => setItems(resp.list))
+		// 	.catch(err => {console.log(err)})
+
+		getUserLists()
 	}, [])
 
 	const timeLeft = (date1, createdAt) => {
@@ -58,26 +73,6 @@ export const ShoppingList = () => {
 		})
 	}
 
-	const getItemDetails = async (itemID) => {
-		let token = localStorage.getItem("token")
-		if(!token){
-			navigate("/Login")
-		}
-		let response = await fetch("http://localhost:3030/api/v1/itemquery", {
-			method: 'GET',
-			headers: {
-				"Content-type" : "application/json",
-				auth: token,
-				id: itemID
-			}
-		})
-		let output = await response.json()
-		userItems[itemID] = output
-		setUserItems(userItems)
-		if(response.ok){
-			return output
-		}
-	}
 	const authCheck = async () => {
 		let token = localStorage.getItem("token")
 		if (!token) {
@@ -144,39 +139,45 @@ export const ShoppingList = () => {
 			</div>
 		</div>
 		<div style={{backgroundImage: "url(\"https://static.vecteezy.com/system/resources/previews/011/300/535/non_2x/abstract-3d-liquid-colorful-gradient-flow-wave-shape-elements-background-vector.jpg\")"}} className="h-[93%] w-full bg-gray-950 scrollbar overflow-y-auto overflow-x-hidden  p-6 ">
-			{
+			{userLists &&
 				userLists.map((userList, index) => {
 					let nextDay = timeLeft(userList[0].basketRepeat, userList[0].createdAt)
+
 					return (
-						<div key={userList[index].basketName} className="h-1/3 w-full bg-translucentWhite  rounded-2xl shadow-2xl backdrop-blur-2xl grid grid-cols-[8%_52%_40%] mb-8">
+						<div key={userList[0].basketName} className="h-1/3 w-full bg-translucentWhite  rounded-2xl shadow-2xl backdrop-blur-2xl grid grid-cols-[8%_52%_40%] mb-8">
 							<div className="shadow-2xl p-4 text-white font-bold text-4xl flex justify-center items-center border-l-2 border-translucentWhite [transform:rotate(180deg)] [writing-mode:vertical-lr] [text-orientation:sideways] ">{weekdays[nextDay.day]}
 							</div>
 							<div className="p-1 pt-2 overflow-y-auto scrollbar border-r-2 border-gray-800 bg-translucentDarken">
 								{
 									userList.map((item) => {
-										console.log(item)
+										let colourMain;
+										if (item.itemModels[0].storeID === "L") {
+											colourMain = "rgba(80, 40, 40, 1)"
+										} else if (item.itemModels[0].storeID === "C") {
+											colourMain = "rgba(40, 40, 100, 1)"
+										} else if (item.itemModels[0].storeID === "N"){
+											colourMain = "#B58B00"
+										}
 										return (
-											<div key={item.id} className=" hover:shadow-xl w-full h-1/4 p-1 hover:cursor-pointer hover:bg-translucentHover rounded-md grid grid-cols-[5%_65%_20%_10%]">
+											<div key={item.id} className=" hover:shadow-xl w-full h-1/4 p-1 hover:cursor-pointer hover:bg-translucentHover rounded-md grid grid-cols-[5%_45%_40%_10%]">
 												<div
 													style={{backgroundImage: "url(" + item.itemModels[0].href + ")"}}
 													className=" rounded-md w-full h-full bg-cover bg-center bg-no-repeat"></div>
 												<div
 													className="text-white font-semibold pl-4 text-xl flex items-center">{item.itemModels[0].title}
 												</div>
-												<div
-													className="text-gray-300 font-semibold pl-4  flex items-center justify-end pr-3">{item.itemModels[0].quantity}g
+												<div className="text-gray-300 font-semibold pl-4  flex items-center justify-end pr-3">{item.itemModels[0].quantity * item.itemQuantity}g
 													· {(item.itemModels[0].cost*1000/item.itemModels[0].quantity).toString().slice(0, 5)} per
 													kg
 												</div>
-												<div className="bg-blue-700 rounded-r-md"></div>
+												<div style={{backgroundColor: colourMain}} className=" rounded-r-md"></div>
 											</div>
 										)
 									})
 								}
 							</div>
 							<div className="p-2 grid grid-rows-[30%_30%_40%]">
-								<div
-									className="text-white font-bold text-4xl flex items-center pl-2">{userList[0].basketName}</div>
+								<div className="text-white font-bold text-4xl flex items-center pl-2">{userList[0].basketName}</div>
 								<div className="flex">
 									<div className="w-full h-full text-white font-semibold text-2xl pl-3">Next in {nextDay.daysLeft} days
 									</div>
@@ -184,7 +185,31 @@ export const ShoppingList = () => {
 										for once every {userList[0].basketRepeat} days
 									</div>
 								</div>
-								<div className="text-white font-bold pl-2 text-4xl">Total Cost: $345.6</div>
+								<div className="text-white flex w-full font-bold pl-2 text-4xl">
+									<div className="w-[80%]">Total Cost: $345.6</div>
+									<div className="h-1/2 w-[20%]  flex items-center justify-center">
+										<DeleteIcon  fontSize="large" className=" bg-translucentWhite rounded-full text-white hover:text-red-500 hover:cursor-pointer" onClick={()=>{
+											let token = localStorage.getItem('token');
+											if(!token){
+												navigate("/Login");
+											}
+											fetch(`http://localhost:3030/api/v1/deletelist/${userList[0].basketName}`,{
+												method: 'DELETE',
+												headers: {
+													"Content-type": "application/json",
+													auth: token
+												}
+											})
+												.then(response => response.json())
+												.then(response => {
+													console.log(response)
+													getUserLists()
+												})
+												.catch(err => alert(err))
+										}}/>
+									</div>
+								</div>
+
 							</div>
 						</div>
 					)
@@ -200,6 +225,7 @@ export const ShoppingList = () => {
 				showSelect.current.classList.add("text-gray-400")
 			}} >
 				<div onClick={()=>{
+					getItems()
 					showSelect.current.style.display = "none"
 					setHeightState("135%")
 				}} ref={showSelect} className="h-[28vh] hover:cursor-pointer  w-full flex items-center justify-center top-[20%]"><AddCircleRounded fontSize="large" color="primary" className="mr-4"/> Add new Shopping List</div>
@@ -227,6 +253,7 @@ export const ShoppingList = () => {
 						closeForm(e)
 						nameRef.current.value = "";
 						tempStore.current = []
+						getUserLists()
 
 					}}>
 						<input required ref={nameRef} placeholder="Enter List Name" type="text" className="h-[13%] mb-6 shadow-md transition rounded-md w-full bg-translucentDarken focus:bg-translucentHover text-white font-semibold text-3xl focus:outline-none pl-4 focus:shadow-xl"/>
@@ -331,6 +358,7 @@ export const ShoppingList = () => {
 								closeForm(e)
 								nameRef.current.value = "";
 								tempStore.current = []
+								setItems([])
 							}}>Clear Selection</button>
 							<button type="submit" className="rounded-full  transition-shadow bg-blue-500 h-[10%] w-1/6  text-gray-800 font-bold" onClick={(e)=>{
 							}}>Create List</button>
