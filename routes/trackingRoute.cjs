@@ -5,7 +5,7 @@ const itemsDB = require("../config/db.cjs")
 const Item = require("../models/storeItemModel.cjs")
 const User = require("../models/userModel.cjs")
 const UserBasket = require("../models/userBasketModel.cjs")
-const {Op, DataTypes} = require("sequelize");
+const {Op, DataTypes, Sequelize} = require("sequelize");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -179,9 +179,35 @@ router.post("/newlist", authToken, async(req, res) => {
     } catch(e){
         console.log(e)
     }
-
 })
 
+router.get("/lists", authToken, async(req, res) => {
+    try {
+        let user = req.user;
+        let userBaskets = await UserBasket.findAll({
+            attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("basketName")), "userBaskets"]],
+            where: {
+                userID: user.id
+            }
+        })
+        let basketItems = []
+        for(let basket of userBaskets) {
+            let basketItemsEntry = await UserBasket.findAll({
+                where: {
+                    userID: user.id,
+                    basketName: basket.dataValues.userBaskets
+                }
+            })
+            basketItems.push(basketItemsEntry)
+        }
+        res.status(200).json({
+            basketItems: basketItems,
+            status: "success"
+        })
+    } catch(e){
+        console.log(e)
+    }
+})
 
 
 module.exports = router;
