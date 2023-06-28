@@ -193,6 +193,7 @@ router.get("/lists", authToken, async(req, res) => {
         let basketItems = []
         for(let basket of userBaskets) {
             let basketItemsEntry = await UserBasket.findAll({
+                include: [Item],
                 where: {
                     userID: user.id,
                     basketName: basket.dataValues.userBaskets
@@ -207,6 +208,22 @@ router.get("/lists", authToken, async(req, res) => {
     } catch(e){
         console.log(e)
     }
+})
+
+router.get("/itemquery", async (req, res) => {
+    try {
+        let itemID = parseInt(req.headers.id)
+        let itemDetails = await Item.findByPk(itemID);
+        if(itemDetails){
+            res.status(200).json(itemDetails)
+        } else {
+            res.status(404).json({ message: 'Item not found' });
+        }
+
+    } catch(e){
+        console.log(e)
+    }
+
 })
 
 

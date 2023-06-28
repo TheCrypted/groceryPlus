@@ -12,6 +12,7 @@ export const ShoppingList = () => {
 	const [items, setItems] = useState([])
 	const [userLists, setUserLists] = useState([])
 	const [heightState, setHeightState] = useState("33%")
+	const [userItems, setUserItems] = useState([])
 	const selectedGreen = useRef([])
 	const navigate = useNavigate()
 	let newRef = useRef()
@@ -55,6 +56,27 @@ export const ShoppingList = () => {
 			day: nextDate.getDay(),
 			daysLeft: ((Math.abs(nextDate - date)/60000)/60)/24
 		})
+	}
+
+	const getItemDetails = async (itemID) => {
+		let token = localStorage.getItem("token")
+		if(!token){
+			navigate("/Login")
+		}
+		let response = await fetch("http://localhost:3030/api/v1/itemquery", {
+			method: 'GET',
+			headers: {
+				"Content-type" : "application/json",
+				auth: token,
+				id: itemID
+			}
+		})
+		let output = await response.json()
+		userItems[itemID] = output
+		setUserItems(userItems)
+		if(response.ok){
+			return output
+		}
 	}
 	const authCheck = async () => {
 		let token = localStorage.getItem("token")
@@ -132,15 +154,18 @@ export const ShoppingList = () => {
 							<div className="p-1 pt-2 overflow-y-auto scrollbar border-r-2 border-gray-800 bg-translucentDarken">
 								{
 									userList.map((item) => {
+										console.log(item)
 										return (
 											<div key={item.id} className=" hover:shadow-xl w-full h-1/4 p-1 hover:cursor-pointer hover:bg-translucentHover rounded-md grid grid-cols-[5%_65%_20%_10%]">
 												<div
-													style={{backgroundImage: "url(\"https://z.nooncdn.com/tr:n-t_800/v1663324304/N34537911A_1.jpg\")"}}
+													style={{backgroundImage: "url(" + item.itemModels[0].href + ")"}}
 													className=" rounded-md w-full h-full bg-cover bg-center bg-no-repeat"></div>
-												<div className="text-white font-semibold pl-4 text-xl flex items-center">Fresh
-													Pumpkin Red
+												<div
+													className="text-white font-semibold pl-4 text-xl flex items-center">{item.itemModels[0].title}
 												</div>
-												<div className="text-gray-300 font-semibold pl-4  flex items-center">500g · 5.81 per
+												<div
+													className="text-gray-300 font-semibold pl-4  flex items-center justify-end pr-3">{item.itemModels[0].quantity}g
+													· {(item.itemModels[0].cost*1000/item.itemModels[0].quantity).toString().slice(0, 5)} per
 													kg
 												</div>
 												<div className="bg-blue-700 rounded-r-md"></div>

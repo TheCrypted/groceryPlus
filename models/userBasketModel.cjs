@@ -40,5 +40,6 @@ Basket.init({
 })
 
 Basket.belongsTo(User)
+Basket.hasMany(Item, {foreignKey: "id", sourceKey: "itemID", targetKey: "id"})
 
 module.exports = Basket;
