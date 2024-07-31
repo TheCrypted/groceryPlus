@@ -142,7 +142,7 @@ export const ShoppingList = () => {
 			{userLists &&
 				userLists.map((userList, index) => {
 					let nextDay = timeLeft(userList[0].basketRepeat, userList[0].createdAt)
-
+					let totalItems = userList.reduce((acc, item) => acc + (item.itemModels[0].cost * item.itemQuantity), 0 ).toString().slice(0,6)
 					return (
 						<div key={userList[0].basketName} className="h-1/3 w-full bg-translucentWhite  rounded-2xl shadow-2xl backdrop-blur-2xl grid grid-cols-[8%_52%_40%] mb-8">
 							<div className="shadow-2xl p-4 text-white font-bold text-4xl flex justify-center items-center border-l-2 border-translucentWhite [transform:rotate(180deg)] [writing-mode:vertical-lr] [text-orientation:sideways] ">{weekdays[nextDay.day]}
@@ -181,12 +181,12 @@ export const ShoppingList = () => {
 								<div className="flex">
 									<div className="w-full h-full text-white font-semibold text-2xl pl-3">Next in {nextDay.daysLeft} days
 									</div>
-									<div className=" w-full h-full text-gray-200 pt-1 font-semibold text-xl">Scheduled
+									<div className=" w-full h-full text-gray-300 pt-1 font-semibold text-xl">Scheduled
 										for once every {userList[0].basketRepeat} days
 									</div>
 								</div>
 								<div className="text-white flex w-full font-bold pl-2 text-4xl">
-									<div className="w-[80%]">Total Cost: $345.6</div>
+									<div className="w-[80%]">Total Cost: {totalItems} د.إ</div>
 									<div className="h-1/2 w-[20%]  flex items-center justify-center">
 										<DeleteIcon  fontSize="large" className=" bg-translucentWhite rounded-full text-white hover:text-red-500 hover:cursor-pointer" onClick={()=>{
 											let token = localStorage.getItem('token');
@@ -351,7 +351,6 @@ export const ShoppingList = () => {
 								}
 
 							</div>
-
 						</div>
 						<div className="w-full flex justify-center h-full gap-4">
 							<button className="rounded-full transition-shadow h-[10%] w-1/6 border-2 border-red-500 text-red-500 font-semibold" onClick={(e)=>{

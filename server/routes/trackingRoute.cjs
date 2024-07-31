@@ -210,7 +210,7 @@ router.get("/lists", authToken, async(req, res) => {
     }
 })
 
-router.delete("/deletelist/:listname", auth, async (req, res) => {
+router.delete("/deletelist/:listname", authToken, async (req, res) => {
     try {
         const listName = req.params.listname
         console.log(listName)
